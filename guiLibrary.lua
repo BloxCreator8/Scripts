@@ -4,7 +4,7 @@ local RunService = game:GetService("RunService")
 local BloxLib = {}
 local BloxGui = Instance.new("ScreenGui")
 BloxGui.ResetOnSpawn = false
-BloxGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+BloxGui.Parent = game.CoreGui
 
 local Frame = Instance.new("Frame")
 local Title = Instance.new("TextLabel")
@@ -284,5 +284,6 @@ end)
 local ToggleCorner = Instance.new("UICorner")
 ToggleCorner.CornerRadius = UDim.new(1, 0)
 ToggleCorner.Parent = ToggleButton
+
 
 return BloxLib
