@@ -4,7 +4,7 @@ local RunService = game:GetService("RunService")
 local BloxLib = {}
 local BloxGui = Instance.new("ScreenGui")
 BloxGui.ResetOnSpawn = false
-BloxGui.Parent = game.CoreGui
+BloxGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 
 local Frame = Instance.new("Frame")
 local Title = Instance.new("TextLabel")
@@ -19,7 +19,7 @@ local isMobile = UserInputService.TouchEnabled
 local frameWidth = isMobile and 420 or 840
 local frameHeight = isMobile and 280 or 560
 
-Frame.Size = UDim2.new(0, frameWidth, 0, frameHeight)
+Frame.Size = UDim2.new(0, 0, 0, 0) -- начальное скрытие для анимации
 Frame.Position = UDim2.new(0.5, -frameWidth / 2, 0.5, -frameHeight / 2)
 Frame.Draggable = true
 Frame.Active = true
@@ -29,6 +29,22 @@ Frame.ClipsDescendants = true
 local UICorner = Instance.new("UICorner")
 UICorner.CornerRadius = UDim.new(0, 14)
 UICorner.Parent = Frame
+
+local stroke = Instance.new("UIStroke")
+stroke.Thickness = 2
+stroke.Color = Color3.fromRGB(255, 0, 0)
+stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+stroke.Parent = Frame
+
+local shadow = Instance.new("ImageLabel")
+shadow.Parent = Frame
+shadow.Size = UDim2.new(1, 40, 1, 40)
+shadow.Position = UDim2.new(0, -20, 0, -20)
+shadow.BackgroundTransparency = 1
+shadow.Image = "rbxassetid://6015897843"
+shadow.ImageColor3 = Color3.fromRGB(255, 0, 0)
+shadow.ImageTransparency = 0.6
+shadow.ZIndex = -1
 
 Title.Parent = Frame
 Title.Text = ""
@@ -49,6 +65,9 @@ Sidebar.Position = UDim2.new(0, 0, 0, 40)
 Sidebar.CanvasSize = UDim2.new(0, 0, 2, 0)
 Sidebar.ScrollBarThickness = 6
 Sidebar.AutomaticCanvasSize = Enum.AutomaticSize.Y
+Sidebar.ScrollBarImageColor3 = Color3.fromRGB(255, 0, 0)
+Sidebar.ScrollBarImageTransparency = 0.2
+Sidebar.ScrollBarThickness = 8
 
 local UICornerSidebar = Instance.new("UICorner")
 UICornerSidebar.CornerRadius = UDim.new(0, 14)
@@ -61,6 +80,9 @@ Content.Position = UDim2.new(0, 120, 0, 40)
 Content.CanvasSize = UDim2.new(0, 0, 2, 0)
 Content.ScrollBarThickness = 6
 Content.AutomaticCanvasSize = Enum.AutomaticSize.Y
+Content.ScrollBarImageColor3 = Color3.fromRGB(255, 0, 0)
+Content.ScrollBarImageTransparency = 0.2
+Content.ScrollBarThickness = 8
 
 local UIListLayout = Instance.new("UIListLayout")
 UIListLayout.Parent = Content
@@ -115,19 +137,62 @@ end
 local minimized = false
 MinimizeButton.MouseButton1Click:Connect(function()
     if not minimized then
-        local minimizeTween = TweenService:Create(Frame, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0, frameWidth, 0, 40), BackgroundTransparency = 0.5})
+        local minimizeTween = TweenService:Create(Frame, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), 
+            {Size = UDim2.new(0, frameWidth, 0, 40), BackgroundTransparency = 0.5})
         minimizeTween:Play()
         MinimizeButton.Text = "+"
     else
-        local restoreTween = TweenService:Create(Frame, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0, frameWidth, 0, frameHeight), BackgroundTransparency = 0})
+        local restoreTween = TweenService:Create(Frame, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), 
+            {Size = UDim2.new(0, frameWidth, 0, frameHeight), BackgroundTransparency = 0})
         restoreTween:Play()
         MinimizeButton.Text = "-"
     end
     minimized = not minimized
 end)
 
-local appearTween = TweenService:Create(Frame, TweenInfo.new(0.6, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency = 0})
-appearTween:Play()
+TweenService:Create(Frame, TweenInfo.new(0.6, Enum.EasingStyle.Back, Enum.EasingDirection.Out), 
+    {Size = UDim2.new(0, frameWidth, 0, frameHeight)}):Play()
+
+task.spawn(function()
+    while Frame.Parent do
+        TweenService:Create(Frame, TweenInfo.new(1, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), 
+            {BackgroundColor3 = Color3.fromRGB(20, 0, 0)}):Play()
+        task.wait(1)
+        TweenService:Create(Frame, TweenInfo.new(1, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), 
+            {BackgroundColor3 = Color3.fromRGB(10, 10, 10)}):Play()
+        task.wait(1)
+    end
+end)
+
+task.spawn(function()
+    while Frame.Parent do
+        TweenService:Create(Sidebar, TweenInfo.new(1, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), {
+            ScrollBarImageTransparency = 0.05
+        }):Play()
+        TweenService:Create(Content, TweenInfo.new(1, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), {
+            ScrollBarImageTransparency = 0.05
+        }):Play()
+        task.wait(1)
+        TweenService:Create(Sidebar, TweenInfo.new(1, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), {
+            ScrollBarImageTransparency = 0.3
+        }):Play()
+        TweenService:Create(Content, TweenInfo.new(1, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), {
+            ScrollBarImageTransparency = 0.3
+        }):Play()
+        task.wait(1)
+    end
+end)
+
+local function AddHoverEffect(button)
+    button.MouseEnter:Connect(function()
+        TweenService:Create(button, TweenInfo.new(0.3), 
+            {BackgroundColor3 = Color3.fromRGB(255, 0, 0)}):Play()
+    end)
+    button.MouseLeave:Connect(function()
+        TweenService:Create(button, TweenInfo.new(0.3), 
+            {BackgroundColor3 = Color3.fromRGB(40, 40, 40)}):Play()
+    end)
+end
 
 function BloxLib:SetTitle(name)
     Title.Text = name
@@ -136,10 +201,8 @@ end
 function BloxLib:createTab(name, callback)
     local Tab = Instance.new("TextButton")
     Tab.Parent = Sidebar
-    Tab.LayoutOrder = Content
     Tab.Text = name
     Tab.Size = UDim2.new(1, 0, 0, 40)
-    Tab.Position = UDim2.new(0, 0, 0, Content)
     Tab.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
     Tab.TextColor3 = Color3.fromRGB(255, 50, 50)
     Tab.Font = Enum.Font.GothamBold
@@ -153,6 +216,8 @@ function BloxLib:createTab(name, callback)
         BloxLib:ClearContent()
         callback()
     end)
+
+    AddHoverEffect(Tab)
 end
 
 function BloxLib:createButton(text, callback)
@@ -284,6 +349,5 @@ end)
 local ToggleCorner = Instance.new("UICorner")
 ToggleCorner.CornerRadius = UDim.new(1, 0)
 ToggleCorner.Parent = ToggleButton
-
 
 return BloxLib
