@@ -2,29 +2,31 @@ local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
+local Mouse = Players.LocalPlayer:GetMouse()
 
 local BloxLib = {}
 local BloxGui = Instance.new("ScreenGui")
-BloxGui.Name = "BloxPremium_Ultimate"
+BloxGui.Name = "BloxPremium_Legendary_v3"
 BloxGui.ResetOnSpawn = false
 BloxGui.Parent = Players.LocalPlayer:WaitForChild("PlayerGui")
 
--- КОНФИГУРАЦИЯ ТЕМЫ (GAMING RED)
+-- КОНФИГУРАЦИЯ ТЕМЫ (ULTRA GAMING)
 local Theme = {
-    Main = Color3.fromRGB(10, 10, 12),
-    Secondary = Color3.fromRGB(16, 16, 18),
+    Main = Color3.fromRGB(8, 8, 10),
+    Secondary = Color3.fromRGB(14, 14, 17),
     Accent = Color3.fromRGB(255, 0, 45),
-    DarkAccent = Color3.fromRGB(80, 0, 15),
-    Stroke = Color3.fromRGB(35, 35, 40),
+    DarkAccent = Color3.fromRGB(60, 0, 10),
+    Stroke = Color3.fromRGB(40, 40, 45),
     Text = Color3.fromRGB(255, 255, 255),
-    TextDim = Color3.fromRGB(150, 150, 150)
+    TextDim = Color3.fromRGB(160, 160, 170),
+    Grid = Color3.fromRGB(30, 30, 35)
 }
 
 local isMobile = UserInputService.TouchEnabled
 local frameWidth = isMobile and 450 or 820
 local frameHeight = isMobile and 300 or 540
 
--- УТИЛИТЫ ДЛЯ СТИЛЯ
+-- УТИЛИТЫ
 local function ApplyDesign(obj, radius, strokeTrans)
     local corner = Instance.new("UICorner")
     corner.CornerRadius = UDim.new(0, radius or 10)
@@ -43,8 +45,8 @@ end
 local function AnimateClick(obj)
     local originalSize = obj.Size
     obj.MouseButton1Down:Connect(function()
-        TweenService:Create(obj, TweenInfo.new(0.15, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-            Size = UDim2.new(originalSize.X.Scale, originalSize.X.Offset - 6, originalSize.Y.Scale, originalSize.Y.Offset - 4)
+        TweenService:Create(obj, TweenInfo.new(0.1, Enum.EasingStyle.Quad), {
+            Size = UDim2.new(originalSize.X.Scale, originalSize.X.Offset - 5, originalSize.Y.Scale, originalSize.Y.Offset - 3)
         }):Play()
     end)
     obj.MouseButton1Up:Connect(function()
@@ -58,19 +60,40 @@ Frame.Name = "MainFrame"
 Frame.Parent = BloxGui
 Frame.BackgroundColor3 = Theme.Main
 Frame.Position = UDim2.new(0.5, -frameWidth/2, 0.5, -frameHeight/2)
-Frame.Size = UDim2.new(0, 0, 0, 0) -- Начало для анимации
+Frame.Size = UDim2.new(0, 0, 0, 0)
 Frame.ClipsDescendants = true
 Frame.Active = true
 Frame.Draggable = true
 
-ApplyDesign(Frame, 14, 0.3)
+ApplyDesign(Frame, 16, 0.4)
 
--- СВЕЧЕНИЕ (NEON SHADOW)
+-- 1. PARALLAX GRID BACKGROUND
+local GridHolder = Instance.new("Frame", Frame)
+GridHolder.Size = UDim2.new(1, 0, 1, 0)
+GridHolder.BackgroundTransparency = 1
+GridHolder.ClipsDescendants = true
+
+local Grid = Instance.new("ImageLabel", GridHolder)
+Grid.Size = UDim2.new(1.5, 0, 1.5, 0)
+Grid.Position = UDim2.new(-0.25, 0, -0.25, 0)
+Grid.BackgroundTransparency = 1
+Grid.Image = "rbxassetid://12922417013"
+Grid.ImageColor3 = Theme.Grid
+Grid.ImageTransparency = 0.7
+Grid.TileSize = UDim2.new(0, 50, 0, 50)
+Grid.ScaleType = Enum.ScaleType.Tile
+
+RunService.RenderStepped:Connect(function()
+    local targetPos = UDim2.new(-0.25, (Mouse.X - Mouse.ViewSizeX/2)/100, -0.25, (Mouse.Y - Mouse.ViewSizeY/2)/100)
+    Grid.Position = Grid.Position:Lerp(targetPos, 0.05)
+end)
+
+-- 2. NEON GLOW
 local Shadow = Instance.new("ImageLabel")
 Shadow.Parent = Frame
 Shadow.AnchorPoint = Vector2.new(0.5, 0.5)
 Shadow.Position = UDim2.new(0.5, 0, 0.5, 0)
-Shadow.Size = UDim2.new(1, 80, 1, 80)
+Shadow.Size = UDim2.new(1, 100, 1, 100)
 Shadow.BackgroundTransparency = 1
 Shadow.Image = "rbxassetid://6014265364"
 Shadow.ImageColor3 = Theme.Accent
@@ -80,8 +103,9 @@ Shadow.ZIndex = -1
 -- ШАПКА
 local Header = Instance.new("Frame")
 Header.Name = "Header"
-Header.Size = UDim2.new(1, 0, 0, 50)
+Header.Size = UDim2.new(1, 0, 0, 55)
 Header.BackgroundColor3 = Theme.Secondary
+Header.BackgroundTransparency = 0.2
 Header.BorderSizePixel = 0
 Header.Parent = Frame
 
@@ -90,19 +114,20 @@ Title.Parent = Header
 Title.Size = UDim2.new(1, -120, 1, 0)
 Title.Position = UDim2.new(0, 20, 0, 0)
 Title.BackgroundTransparency = 1
-Title.Text = "BLOX ULTIMATE"
+Title.Text = "MINERSCAVE"
 Title.TextColor3 = Theme.Text
 Title.Font = Enum.Font.GothamBold
-Title.TextSize = 18
+Title.TextSize = 20
 Title.TextXAlignment = Enum.TextXAlignment.Left
 
--- РАЗДЕЛИТЕЛЬ САЙДБАРА
+-- САЙДБАР
 local Sidebar = Instance.new("ScrollingFrame")
 Sidebar.Name = "Sidebar"
 Sidebar.Parent = Frame
-Sidebar.Size = UDim2.new(0, 170, 1, -50)
-Sidebar.Position = UDim2.new(0, 0, 0, 50)
-Sidebar.BackgroundColor3 = Color3.fromRGB(12, 12, 14)
+Sidebar.Size = UDim2.new(0, 180, 1, -55)
+Sidebar.Position = UDim2.new(0, 0, 0, 55)
+Sidebar.BackgroundColor3 = Color3.fromRGB(5, 5, 7)
+Sidebar.BackgroundTransparency = 0.4
 Sidebar.BorderSizePixel = 0
 Sidebar.ScrollBarThickness = 0
 Sidebar.CanvasSize = UDim2.new(0,0,0,0)
@@ -112,15 +137,26 @@ local SideLayout = Instance.new("UIListLayout")
 SideLayout.Parent = Sidebar
 SideLayout.Padding = UDim.new(0, 8)
 SideLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-
 Instance.new("UIPadding", Sidebar).PaddingTop = UDim.new(0, 15)
 
--- КОНТЕНТ
+-- 3. SIDEBAR INDICATOR
+local Indicator = Instance.new("Frame", Sidebar)
+Indicator.Size = UDim2.new(0, 4, 0, 20)
+Indicator.BackgroundColor3 = Theme.Accent
+Indicator.BorderSizePixel = 0
+Indicator.ZIndex = 5
+Indicator.Visible = false
+Instance.new("UICorner", Indicator).CornerRadius = UDim.new(1, 0)
+
+-- КОНТЕНТ (CANVAS GROUP ДЛЯ ЭФФЕКТОВ)
+local ContentGroup = Instance.new("CanvasGroup", Frame)
+ContentGroup.Size = UDim2.new(1, -200, 1, -75)
+ContentGroup.Position = UDim2.new(0, 190, 0, 65)
+ContentGroup.BackgroundTransparency = 1
+
 local Content = Instance.new("ScrollingFrame")
-Content.Name = "Content"
-Content.Parent = Frame
-Content.Size = UDim2.new(1, -190, 1, -70)
-Content.Position = UDim2.new(0, 180, 0, 60)
+Content.Size = UDim2.new(1, 0, 1, 0)
+Content.Parent = ContentGroup
 Content.BackgroundTransparency = 1
 Content.ScrollBarThickness = 2
 Content.ScrollBarImageColor3 = Theme.Accent
@@ -129,38 +165,42 @@ Content.AutomaticCanvasSize = Enum.AutomaticSize.Y
 
 local ContentLayout = Instance.new("UIListLayout")
 ContentLayout.Parent = Content
-ContentLayout.Padding = UDim.new(0, 10)
+ContentLayout.Padding = UDim.new(0, 12)
 
--- КНОПКИ ЗАКРЫТИЯ/СВЕРНУТЬ
+-- СИСТЕМНЫЕ КНОПКИ
 local function CreateSysBtn(txt, pos, color)
     local btn = Instance.new("TextButton")
     btn.Size = UDim2.new(0, 32, 0, 32)
     btn.Position = pos
-    btn.BackgroundColor3 = Theme.Main
+    btn.BackgroundColor3 = Theme.Secondary
     btn.Text = txt
     btn.TextColor3 = color
     btn.Font = Enum.Font.GothamBold
     btn.TextSize = 18
     btn.Parent = Header
     ApplyDesign(btn, 8, 0.7)
+    AnimateClick(btn)
     return btn
 end
 
-local CloseBtn = CreateSysBtn("×", UDim2.new(1, -42, 0, 9), Theme.Accent)
-local MinBtn = CreateSysBtn("-", UDim2.new(1, -82, 0, 9), Theme.TextDim)
+local CloseBtn = CreateSysBtn("×", UDim2.new(1, -42, 0, 11), Theme.Accent)
+local MinBtn = CreateSysBtn("-", UDim2.new(1, -82, 0, 11), Theme.TextDim)
 
--- ФУНКЦИИ (ПРОКАЧАННЫЕ)
+-- ФУНКЦИИ БИБЛИОТЕКИ
 function BloxLib:SetTitle(val) Title.Text = tostring(val) end
 
 function BloxLib:ClearContent()
+    TweenService:Create(ContentGroup, TweenInfo.new(0.2), {GroupTransparency = 1}):Play()
+    task.wait(0.2)
     for _, v in pairs(Content:GetChildren()) do
         if v:IsA("GuiObject") then v:Destroy() end
     end
+    TweenService:Create(ContentGroup, TweenInfo.new(0.2), {GroupTransparency = 0}):Play()
 end
 
 function BloxLib:createTab(name, callback)
     local Tab = Instance.new("TextButton")
-    Tab.Size = UDim2.new(0, 145, 0, 40)
+    Tab.Size = UDim2.new(0, 155, 0, 42)
     Tab.BackgroundColor3 = Theme.Secondary
     Tab.Text = name
     Tab.TextColor3 = Theme.TextDim
@@ -178,6 +218,13 @@ function BloxLib:createTab(name, callback)
         end
         TweenService:Create(Tab, TweenInfo.new(0.3), {BackgroundColor3 = Theme.DarkAccent, TextColor3 = Theme.Text}):Play()
         s.Transparency = 0.2
+        
+        -- Move Indicator
+        Indicator.Visible = true
+        TweenService:Create(Indicator, TweenInfo.new(0.4, Enum.EasingStyle.Quart), {
+            Position = UDim2.new(0, 5, 0, Tab.Position.Y.Offset + SideLayout.Padding.Offset + 11)
+        }):Play()
+
         BloxLib:ClearContent()
         callback()
     end)
@@ -186,14 +233,17 @@ end
 
 function BloxLib:createButton(text, callback)
     local Btn = Instance.new("TextButton")
-    Btn.Size = UDim2.new(1, -5, 0, 45)
+    Btn.Size = UDim2.new(1, -10, 0, 48)
     Btn.BackgroundColor3 = Theme.Secondary
     Btn.Text = text
     Btn.TextColor3 = Theme.Text
     Btn.Font = Enum.Font.GothamBold
     Btn.TextSize = 14
     Btn.Parent = Content
-    ApplyDesign(Btn, 10, 0.8)
+    local s = ApplyDesign(Btn, 12, 0.8)
+    
+    Btn.MouseEnter:Connect(function() TweenService:Create(s, TweenInfo.new(0.3), {Transparency = 0.2}):Play() end)
+    Btn.MouseLeave:Connect(function() TweenService:Create(s, TweenInfo.new(0.3), {Transparency = 0.8}):Play() end)
     
     Btn.MouseButton1Click:Connect(callback)
     AnimateClick(Btn)
@@ -202,9 +252,9 @@ end
 function BloxLib:createToggle(text, default, callback)
     local state = default or false
     local TglBtn = Instance.new("TextButton")
-    TglBtn.Size = UDim2.new(1, -5, 0, 48)
+    TglBtn.Size = UDim2.new(1, -10, 0, 52)
     TglBtn.BackgroundColor3 = Theme.Secondary
-    TglBtn.Text = "     " .. text
+    TglBtn.Text = "      " .. text
     TglBtn.TextColor3 = Theme.TextDim
     TglBtn.Font = Enum.Font.GothamSemibold
     TglBtn.TextSize = 14
@@ -212,40 +262,37 @@ function BloxLib:createToggle(text, default, callback)
     TglBtn.Parent = Content
     ApplyDesign(TglBtn, 12, 0.9)
     
-    local Frame = Instance.new("Frame")
-    Frame.Size = UDim2.new(0, 44, 0, 24)
-    Frame.Position = UDim2.new(1, -55, 0.5, -12)
-    Frame.BackgroundColor3 = state and Theme.Accent or Color3.fromRGB(40, 40, 45)
-    Frame.Parent = TglBtn
-    Instance.new("UICorner", Frame).CornerRadius = UDim.new(1, 0)
+    local F = Instance.new("Frame", TglBtn)
+    F.Size = UDim2.new(0, 48, 0, 26)
+    F.Position = UDim2.new(1, -60, 0.5, -13)
+    F.BackgroundColor3 = state and Theme.Accent or Color3.fromRGB(45, 45, 50)
+    Instance.new("UICorner", F).CornerRadius = UDim.new(1, 0)
     
-    local Dot = Instance.new("Frame")
-    Dot.Size = UDim2.new(0, 18, 0, 18)
-    Dot.Position = state and UDim2.new(1, -22, 0.5, -9) or UDim2.new(0, 4, 0.5, -9)
-    Dot.BackgroundColor3 = Color3.new(1,1,1)
-    Dot.Parent = Frame
-    Instance.new("UICorner", Dot).CornerRadius = UDim.new(1, 0)
+    local D = Instance.new("Frame", F)
+    D.Size = UDim2.new(0, 20, 0, 20)
+    D.Position = state and UDim2.new(1, -24, 0.5, -10) or UDim2.new(0, 4, 0.5, -10)
+    D.BackgroundColor3 = Color3.new(1,1,1)
+    Instance.new("UICorner", D).CornerRadius = UDim.new(1, 0)
     
     TglBtn.MouseButton1Click:Connect(function()
         state = not state
-        TweenService:Create(Frame, TweenInfo.new(0.3, Enum.EasingStyle.Quart), {BackgroundColor3 = state and Theme.Accent or Color3.fromRGB(40, 40, 45)}):Play()
-        TweenService:Create(Dot, TweenInfo.new(0.3, Enum.EasingStyle.Back), {Position = state and UDim2.new(1, -22, 0.5, -9) or UDim2.new(0, 4, 0.5, -9)}):Play()
+        TweenService:Create(F, TweenInfo.new(0.3), {BackgroundColor3 = state and Theme.Accent or Color3.fromRGB(45, 45, 50)}):Play()
+        TweenService:Create(D, TweenInfo.new(0.3, Enum.EasingStyle.Back), {Position = state and UDim2.new(1, -24, 0.5, -10) or UDim2.new(0, 4, 0.5, -10)}):Play()
         callback(state)
     end)
     return TglBtn
 end
 
 function BloxLib:createTextBox(placeholder, callback)
-    local Box = Instance.new("TextBox")
-    Box.Size = UDim2.new(1, -5, 0, 45)
+    local Box = Instance.new("TextBox", Content)
+    Box.Size = UDim2.new(1, -10, 0, 48)
     Box.BackgroundColor3 = Theme.Main
     Box.PlaceholderText = placeholder
     Box.Text = ""
     Box.TextColor3 = Theme.Text
     Box.Font = Enum.Font.GothamSemibold
     Box.TextSize = 14
-    Box.Parent = Content
-    ApplyDesign(Box, 10, 0.7)
+    ApplyDesign(Box, 12, 0.7)
     
     Box.FocusLost:Connect(function(enter)
         if enter then callback(Box.Text) end
@@ -254,77 +301,65 @@ function BloxLib:createTextBox(placeholder, callback)
 end
 
 function BloxLib:createColorButton(text, color, callback)
-    local Btn = Instance.new("TextButton")
-    Btn.Size = UDim2.new(1, -5, 0, 45)
+    local Btn = Instance.new("TextButton", Content)
+    Btn.Size = UDim2.new(1, -10, 0, 48)
     Btn.BackgroundColor3 = color
     Btn.Text = text
     Btn.TextColor3 = Color3.new(1,1,1)
     Btn.Font = Enum.Font.GothamBold
     Btn.TextSize = 14
-    Btn.Parent = Content
-    ApplyDesign(Btn, 10, 0.5)
-    
+    ApplyDesign(Btn, 12, 0.5)
     Btn.MouseButton1Click:Connect(callback)
     AnimateClick(Btn)
     return Btn
 end
 
 function BloxLib:createLabel(text, size, color, font, tsize)
-    local Lbl = Instance.new("TextLabel")
-    Lbl.Size = size or UDim2.new(1, 0, 0, 30)
+    local Lbl = Instance.new("TextLabel", Content)
+    Lbl.Size = size or UDim2.new(1, 0, 0, 35)
     Lbl.BackgroundTransparency = 1
     Lbl.Text = text
     Lbl.TextColor3 = color or Theme.TextDim
     Lbl.Font = font or Enum.Font.GothamSemibold
     Lbl.TextSize = tsize or 14
-    Lbl.Parent = Content
     return Lbl
 end
 
 function BloxLib:getContent() return Content end
 
--- КНОПКА ВЫЗОВА (OPEN/CLOSE)
-local ToggleMain = Instance.new("TextButton")
-ToggleMain.Parent = BloxGui
-ToggleMain.Size = UDim2.new(0, 55, 0, 55)
-ToggleMain.Position = UDim2.new(0, 20, 0.5, -27)
-ToggleMain.BackgroundColor3 = Theme.Secondary
+-- КНОПКА ВЫЗОВА
+local ToggleMain = Instance.new("TextButton", BloxGui)
+ToggleMain.Size = UDim2.new(0, 60, 0, 60)
+ToggleMain.Position = UDim2.new(0, 25, 0.5, -30)
+ToggleMain.BackgroundColor3 = Theme.Main
 ToggleMain.Text = "B"
 ToggleMain.TextColor3 = Theme.Accent
 ToggleMain.Font = Enum.Font.GothamBold
-ToggleMain.TextSize = 25
+ToggleMain.TextSize = 28
 ToggleMain.Draggable = true
-ApplyDesign(ToggleMain, 27, 0.2)
+ApplyDesign(ToggleMain, 30, 0.2)
 
 ToggleMain.MouseButton1Click:Connect(function()
     Frame.Visible = not Frame.Visible
 end)
 
--- СИСТЕМНЫЕ СОБЫТИЯ
+-- ЗАКРЫТИЕ
 CloseBtn.MouseButton1Click:Connect(function()
     TweenService:Create(Frame, TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.In), {Size = UDim2.new(0,0,0,0)}):Play()
     task.wait(0.4)
     BloxGui:Destroy()
 end)
 
-local minimized = false
-MinBtn.MouseButton1Click:Connect(function()
-    minimized = not minimized
-    local target = minimized and UDim2.new(0, frameWidth, 0, 50) or UDim2.new(0, frameWidth, 0, frameHeight)
-    TweenService:Create(Frame, TweenInfo.new(0.5, Enum.EasingStyle.Quart), {Size = target}):Play()
-end)
-
--- ЦИКЛ СВЕЧЕНИЯ (GLOW BREATHING)
+-- ПУЛЬСАЦИЯ ЦВЕТА (RGB ACCENT)
 task.spawn(function()
-    while Frame.Parent do
-        TweenService:Create(Shadow, TweenInfo.new(2, Enum.EasingStyle.Sine), {ImageTransparency = 0.8}):Play()
-        task.wait(2)
-        TweenService:Create(Shadow, TweenInfo.new(2, Enum.EasingStyle.Sine), {ImageTransparency = 0.4}):Play()
-        task.wait(2)
+    while task.wait(0.1) do
+        local hue = tick() % 5 / 5
+        -- Если хочешь статичный красный, закомментируй строку ниже
+        -- Theme.Accent = Color3.fromHSV(hue, 1, 1) 
     end
 end)
 
--- ОТКРЫТИЕ
-TweenService:Create(Frame, TweenInfo.new(0.7, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Size = UDim2.new(0, frameWidth, 0, frameHeight)}):Play()
+-- ОТКРЫТИЕ (LOADING ANIMATION)
+TweenService:Create(Frame, TweenInfo.new(0.8, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {Size = UDim2.new(0, frameWidth, 0, frameHeight)}):Play()
 
 return BloxLib
